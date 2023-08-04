@@ -1,17 +1,17 @@
-ARG NGINX_VERSION=1.23.3
+ARG NGINX_VERSION=1.27.2
 
 FROM alpine:3.14 AS base
-LABEL maintainer="NGINX Docker Maintainers <docker-maint@nginx.com>"
+LABEL maintainer="NGINX Docker Maintainers <justf>"
 
 # https://nginx.org/en/download.html
 ARG NGINX_VERSION
-ARG NGINX_PATCH="https://raw.githubusercontent.com/kn007/patch/master/nginx.patch"
+ARG NGINX_PATCH="https://raw.githubusercontent.com/kn007/patch/master/nginx_dynamic_tls_records.patch"
 ARG NGINX_CRYPT_PATCH="https://raw.githubusercontent.com/kn007/patch/master/use_openssl_md5_sha1.patch"
 
 # openssl
-ARG OPENSSL_VERSION="1.1.1s"
+ARG OPENSSL_VERSION="3.4.0"
 ARG OPENSSL_URL="https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz"
-ARG OPENSSL_PATCH="https://raw.githubusercontent.com/kn007/patch/master/openssl-1.1.1.patch"
+ARG OPENSSL_PATCH="https://raw.githubusercontent.com/EverybodyGetsHurt/OpenSSL-3.x.x-dev-OpenSSL-1.1.1x-chacha20-poly1305_draft/refs/heads/master/OpenSSL-3.4.0-dev_chacha20-poly1305_draft.patch"
 
 # zlib by cloudflare
 ARG ZLIB_URL="https://github.com/cloudflare/zlib.git"
@@ -21,10 +21,10 @@ ARG JEMALLOC_VERSION=5.3.0
 ARG JEMALLOC_URL="https://github.com/jemalloc/jemalloc/releases/download/${JEMALLOC_VERSION}/jemalloc-${JEMALLOC_VERSION}.tar.bz2"
 
 # brotil
-ARG BROTLI_URL="https://github.com/eustas/ngx_brotli"
+ARG BROTLI_URL="https://github.com/google/ngx_brotli.git"
 
 # https://github.com/openresty/headers-more-nginx-module#installation
-ARG HEADERS_MORE_VERSION=0.34
+ARG HEADERS_MORE_VERSION=0.38
 ARG HEADERS_MORE_URL="https://github.com/openresty/headers-more-nginx-module/archive/refs/tags/v${HEADERS_MORE_VERSION}.tar.gz"
 
 # https://github.com/leev/ngx_http_geoip2_module/releases
@@ -33,7 +33,7 @@ ARG GEOIP2_VERSION=3.4
 ARG PCRE_VERSION="8.45"
 ARG PCRE_URL="https://downloads.sourceforge.net/project/pcre/pcre/${PCRE_VERSION}/pcre-${PCRE_VERSION}.tar.gz"
 
-ARG LIBATOMIC_VERSION="7.6.14"
+ARG LIBATOMIC_VERSION="7.8.2"
 ARG LIBATOMIC_URL="https://github.com/ivmai/libatomic_ops/releases/download/v${LIBATOMIC_VERSION}/libatomic_ops-${LIBATOMIC_VERSION}.tar.gz"
 
 ARG HTTP_FLV_URL="https://github.com/winshining/nginx-http-flv-module.git"
@@ -84,9 +84,7 @@ RUN \
   echo "Downloading Openssl $OPENSSL_VERSION " \
   && cd /usr/src \
   && wget -O openssl-${OPENSSL_VERSION}.tar.gz ${OPENSSL_URL} \
-  && tar -xzvf openssl-${OPENSSL_VERSION}.tar.gz \
-  && cd /usr/src/openssl-${OPENSSL_VERSION} \
-  && curl ${OPENSSL_PATCH} | patch -p1
+  && tar -xzvf openssl-${OPENSSL_VERSION}.tar.gz 
 
 RUN \
   echo "Cloning nginx $NGINX_VERSION ..." \
@@ -107,7 +105,7 @@ RUN \
 RUN \
   echo "Cloning ngx_brotli ..." \
   && cd /usr/src \
-  && git clone https://github.com/eustas/ngx_brotli.git \
+  && git clone ${BROTLI_URL} \
   && cd /usr/src/ngx_brotli \
   && git submodule update --init --recursive
 
@@ -201,7 +199,7 @@ RUN \
 		--with-compat \
 		--with-file-aio \
 		--with-http_v2_module \
-		--with-http_v2_hpack_enc \
+		--with-http_v3_module \
 		--with-zlib=/usr/src/zlib \
 		--with-pcre=/usr/src/pcre-${PCRE_VERSION} \
 		--with-pcre-jit \
