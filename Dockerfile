@@ -1,7 +1,7 @@
 ARG NGINX_VERSION=1.27.2
 
 FROM alpine:3.14 AS base
-LABEL maintainer="NGINX Docker Maintainers <justf>"
+LABEL maintainer="NGINX Docker Maintainers <aldev814>"
 
 # https://nginx.org/en/download.html
 ARG NGINX_VERSION
@@ -47,171 +47,171 @@ ARG SUBS_FILTER_URL="https://github.com/yaoweibin/ngx_http_substitutions_filter_
 
 RUN \
 	apk add --no-cache --virtual .build-deps \
-		patch \
-		gcc \
-		libc-dev \
-		make \
-		musl-dev \
-		go \
-		mercurial \
-		pcre-dev \
-		zlib-dev \
-		linux-headers \
-		curl \
-		gnupg1 \
-		libxslt-dev \
-		gd-dev \
-		geoip-dev \
-		perl-dev \
+	patch \
+	gcc \
+	libc-dev \
+	make \
+	musl-dev \
+	go \
+	mercurial \
+	pcre-dev \
+	zlib-dev \
+	linux-headers \
+	curl \
+	gnupg1 \
+	libxslt-dev \
+	gd-dev \
+	geoip-dev \
+	perl-dev \
 	&& apk add --no-cache --virtual .brotli-build-deps \
-		autoconf \
-		libtool \
-		automake \
-		git \
-		g++ \
-		cmake
+	autoconf \
+	libtool \
+	automake \
+	git \
+	g++ \
+	cmake
 
 WORKDIR /usr/src/
 
 RUN \
-  echo "Cloning zlib by cloudflare ..." \
-  && cd /usr/src \
-  && git clone --depth 1 ${ZLIB_URL} \
-  && cd /usr/src/zlib \
-  && make -f Makefile.in distclean 
+	echo "Cloning zlib by cloudflare ..." \
+	&& cd /usr/src \
+	&& git clone --depth 1 ${ZLIB_URL} \
+	&& cd /usr/src/zlib \
+	&& make -f Makefile.in distclean
 
 RUN \
-  echo "Downloading Openssl $OPENSSL_VERSION " \
-  && cd /usr/src \
-  && wget -O openssl-${OPENSSL_VERSION}.tar.gz ${OPENSSL_URL} \
-  && tar -xzvf openssl-${OPENSSL_VERSION}.tar.gz 
+	echo "Downloading Openssl $OPENSSL_VERSION " \
+	&& cd /usr/src \
+	&& wget -O openssl-${OPENSSL_VERSION}.tar.gz ${OPENSSL_URL} \
+	&& tar -xzvf openssl-${OPENSSL_VERSION}.tar.gz
 
 RUN \
-  echo "Cloning nginx $NGINX_VERSION ..." \
-  && wget -O nginx.tar.gz https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz \
-  && tar -xzvf nginx.tar.gz -C /usr/src \
-  && rm -f nginx.tar.gz \
-  && cd /usr/src/nginx-${NGINX_VERSION} \
-  && curl ${NGINX_PATCH} | patch -p1 \
-  && curl ${NGINX_CRYPT_PATCH} | patch -p1
+	echo "Cloning nginx $NGINX_VERSION ..." \
+	&& wget -O nginx.tar.gz https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz \
+	&& tar -xzvf nginx.tar.gz -C /usr/src \
+	&& rm -f nginx.tar.gz \
+	&& cd /usr/src/nginx-${NGINX_VERSION} \
+	&& curl ${NGINX_PATCH} | patch -p1 \
+	&& curl ${NGINX_CRYPT_PATCH} | patch -p1
 
 RUN \
-  echo "Cloning ngx_http2_geoip2_module ..." \
-  # ngx_http_geoip2_module needs libmaxminddb-dev
-  && apk add --no-cache libmaxminddb-dev \
-  && cd /usr/src \
-  && git clone --depth 1 --branch ${GEOIP2_VERSION} https://github.com/leev/ngx_http_geoip2_module 
+	echo "Cloning ngx_http2_geoip2_module ..." \
+	# ngx_http_geoip2_module needs libmaxminddb-dev
+	&& apk add --no-cache libmaxminddb-dev \
+	&& cd /usr/src \
+	&& git clone --depth 1 --branch ${GEOIP2_VERSION} https://github.com/leev/ngx_http_geoip2_module
 
 RUN \
-  echo "Cloning ngx_brotli ..." \
-  && cd /usr/src \
-  && git clone ${BROTLI_URL} \
-  && cd /usr/src/ngx_brotli \
-  && git submodule update --init --recursive
+	echo "Cloning ngx_brotli ..." \
+	&& cd /usr/src \
+	&& git clone ${BROTLI_URL} \
+	&& cd /usr/src/ngx_brotli \
+	&& git submodule update --init --recursive
 
 RUN \
-  echo "Cloning nginx-http-flv-module & nginx_substitutions_filter ..." \
-  && cd /usr/src \
-  && git clone --depth 1 ${HTTP_FLV_URL} \
-  && git clone --depth 1 ${SUBS_FILTER_URL} 
+	echo "Cloning nginx-http-flv-module & nginx_substitutions_filter ..." \
+	&& cd /usr/src \
+	&& git clone --depth 1 ${HTTP_FLV_URL} \
+	&& git clone --depth 1 ${SUBS_FILTER_URL}
 
 RUN \
-  echo "Downloading headers-more-nginx-module ..." \
-  && cd /usr/src \
-  && wget https://github.com/openresty/headers-more-nginx-module/archive/refs/tags/v${HEADERS_MORE_VERSION}.tar.gz -O headers-more-nginx-module.tar.gz \
-  && tar -xf headers-more-nginx-module.tar.gz
+	echo "Downloading headers-more-nginx-module ..." \
+	&& cd /usr/src \
+	&& wget https://github.com/openresty/headers-more-nginx-module/archive/refs/tags/v${HEADERS_MORE_VERSION}.tar.gz -O headers-more-nginx-module.tar.gz \
+	&& tar -xf headers-more-nginx-module.tar.gz
 
 RUN \
-  echo "Downloading libatomic_ops ..." \
-  && cd /usr/src \
-  && wget -O libatomic_ops-${LIBATOMIC_VERSION}.tar.gz ${LIBATOMIC_URL} \
-  && tar -xzvf libatomic_ops-${LIBATOMIC_VERSION}.tar.gz \
-  && cd /usr/src/libatomic_ops-${LIBATOMIC_VERSION} \
-  &&  ./configure \
-  && make -j $(nproc) \
-  && ln -s .libs/libatomic_ops.a src/libatomic_ops.a
+	echo "Downloading libatomic_ops ..." \
+	&& cd /usr/src \
+	&& wget -O libatomic_ops-${LIBATOMIC_VERSION}.tar.gz ${LIBATOMIC_URL} \
+	&& tar -xzvf libatomic_ops-${LIBATOMIC_VERSION}.tar.gz \
+	&& cd /usr/src/libatomic_ops-${LIBATOMIC_VERSION} \
+	&&  ./configure \
+	&& make -j $(nproc) \
+	&& ln -s .libs/libatomic_ops.a src/libatomic_ops.a
 
 RUN \
-  echo "Downloading ngx-fancyindex ..." \
-  && cd /usr/src \
-  && wget -O ngx-fancyindex-${FANCYINDEX_VERSION}.tar.xz ${FANCYINDEX_URL} \
-  && tar -xvf ngx-fancyindex-${FANCYINDEX_VERSION}.tar.xz 
+	echo "Downloading ngx-fancyindex ..." \
+	&& cd /usr/src \
+	&& wget -O ngx-fancyindex-${FANCYINDEX_VERSION}.tar.xz ${FANCYINDEX_URL} \
+	&& tar -xvf ngx-fancyindex-${FANCYINDEX_VERSION}.tar.xz
 
 RUN \
-  echo "Downloading PCRE ..." \
-  && cd /usr/src \
-  && wget -O pcre-${PCRE_VERSION}.tar.gz ${PCRE_URL} \
-  && tar -xzvf pcre-${PCRE_VERSION}.tar.gz
+	echo "Downloading PCRE ..." \
+	&& cd /usr/src \
+	&& wget -O pcre-${PCRE_VERSION}.tar.gz ${PCRE_URL} \
+	&& tar -xzvf pcre-${PCRE_VERSION}.tar.gz
 
 RUN \
-  echo "Downloading and build jemalloc" \
-  && cd /usr/src \
-  && wget -O jemalloc.tar.gz ${JEMALLOC_URL} \
-  && tar -xvf jemalloc.tar.gz\
-  && cd jemalloc-${JEMALLOC_VERSION} \
-  && ./configure \
-  && make install -j$(nproc)
+	echo "Downloading and build jemalloc" \
+	&& cd /usr/src \
+	&& wget -O jemalloc.tar.gz ${JEMALLOC_URL} \
+	&& tar -xvf jemalloc.tar.gz\
+	&& cd jemalloc-${JEMALLOC_VERSION} \
+	&& ./configure \
+	&& make install -j$(nproc)
 
 RUN \
 	echo "Building nginx ..." \
 	&& cd /usr/src/nginx-$NGINX_VERSION \
 	&& ./configure \
-		--prefix=/etc/nginx \
-		--sbin-path=/usr/sbin/nginx \
-		--modules-path=/usr/lib/nginx/modules \
-		--conf-path=/etc/nginx/nginx.conf \
-		--error-log-path=/var/log/nginx/error.log \
-		--http-log-path=/var/log/nginx/access.log \
-		--pid-path=/var/run/nginx.pid \
-		--lock-path=/var/run/nginx.lock \
-		--http-client-body-temp-path=/var/cache/nginx/client_temp \
-		--http-proxy-temp-path=/var/cache/nginx/proxy_temp \
-		--http-fastcgi-temp-path=/var/cache/nginx/fastcgi_temp \
-		--http-uwsgi-temp-path=/var/cache/nginx/uwsgi_temp \
-		--http-scgi-temp-path=/var/cache/nginx/scgi_temp \
-		--user=nginx \
-		--group=nginx \
-		--with-http_ssl_module \
-		--with-http_realip_module \
-		--with-http_addition_module \
-		--with-http_sub_module \
-		--with-http_dav_module \
-		--with-http_flv_module \
-		--with-http_mp4_module \
-		--with-http_gunzip_module \
-		--with-http_gzip_static_module \
-		--with-http_random_index_module \
-		--with-http_secure_link_module \
-		--with-http_stub_status_module \
-		--with-http_auth_request_module \
-		--with-http_xslt_module=dynamic \
-		--with-http_image_filter_module=dynamic \
-		--with-http_geoip_module=dynamic \
-		--with-threads \
-		--with-stream \
-		--with-stream_ssl_module \
-		--with-stream_ssl_preread_module \
-		--with-stream_realip_module \
-		--with-stream_geoip_module=dynamic \
-		--with-http_slice_module \
-		--with-mail \
-		--with-mail_ssl_module \
-		--with-compat \
-		--with-file-aio \
-		--with-http_v2_module \
-		--with-http_v3_module \
-		--with-zlib=/usr/src/zlib \
-		--with-pcre=/usr/src/pcre-${PCRE_VERSION} \
-		--with-pcre-jit \
-		--with-libatomic=/usr/src/libatomic_ops-${LIBATOMIC_VERSION} \
-		--add-module=/usr/src/headers-more-nginx-module-${HEADERS_MORE_VERSION} \
-		--add-module=/usr/src/ngx-fancyindex-${FANCYINDEX_VERSION} \
-		--add-module=/usr/src/ngx_brotli \
-		--add-module=/usr/src/ngx_http_geoip2_module \
-		--add-module=/usr/src/nginx-http-flv-module \
-		--add-module=/usr/src/ngx_http_substitutions_filter_module \
-		--with-openssl=/usr/src/openssl-${OPENSSL_VERSION} \
-		--with-openssl-opt="zlib enable-tls1_3 enable-weak-ssl-ciphers enable-ec_nistp_64_gcc_128  -ljemalloc -Wl,-flto" \
+	--prefix=/etc/nginx \
+	--sbin-path=/usr/sbin/nginx \
+	--modules-path=/usr/lib/nginx/modules \
+	--conf-path=/etc/nginx/nginx.conf \
+	--error-log-path=/var/log/nginx/error.log \
+	--http-log-path=/var/log/nginx/access.log \
+	--pid-path=/var/run/nginx.pid \
+	--lock-path=/var/run/nginx.lock \
+	--http-client-body-temp-path=/var/cache/nginx/client_temp \
+	--http-proxy-temp-path=/var/cache/nginx/proxy_temp \
+	--http-fastcgi-temp-path=/var/cache/nginx/fastcgi_temp \
+	--http-uwsgi-temp-path=/var/cache/nginx/uwsgi_temp \
+	--http-scgi-temp-path=/var/cache/nginx/scgi_temp \
+	--user=nginx \
+	--group=nginx \
+	--with-http_ssl_module \
+	--with-http_realip_module \
+	--with-http_addition_module \
+	--with-http_sub_module \
+	--with-http_dav_module \
+	--with-http_flv_module \
+	--with-http_mp4_module \
+	--with-http_gunzip_module \
+	--with-http_gzip_static_module \
+	--with-http_random_index_module \
+	--with-http_secure_link_module \
+	--with-http_stub_status_module \
+	--with-http_auth_request_module \
+	--with-http_xslt_module=dynamic \
+	--with-http_image_filter_module=dynamic \
+	--with-http_geoip_module=dynamic \
+	--with-threads \
+	--with-stream \
+	--with-stream_ssl_module \
+	--with-stream_ssl_preread_module \
+	--with-stream_realip_module \
+	--with-stream_geoip_module=dynamic \
+	--with-http_slice_module \
+	--with-mail \
+	--with-mail_ssl_module \
+	--with-compat \
+	--with-file-aio \
+	--with-http_v2_module \
+	--with-http_v3_module \
+	--with-zlib=/usr/src/zlib \
+	--with-pcre=/usr/src/pcre-${PCRE_VERSION} \
+	--with-pcre-jit \
+	--with-libatomic=/usr/src/libatomic_ops-${LIBATOMIC_VERSION} \
+	--add-module=/usr/src/headers-more-nginx-module-${HEADERS_MORE_VERSION} \
+	--add-module=/usr/src/ngx-fancyindex-${FANCYINDEX_VERSION} \
+	--add-module=/usr/src/ngx_brotli \
+	--add-module=/usr/src/ngx_http_geoip2_module \
+	--add-module=/usr/src/nginx-http-flv-module \
+	--add-module=/usr/src/ngx_http_substitutions_filter_module \
+	--with-openssl=/usr/src/openssl-${OPENSSL_VERSION} \
+	--with-openssl-opt="zlib enable-tls1_3 enable-weak-ssl-ciphers enable-ec_nistp_64_gcc_128  -ljemalloc -Wl,-flto" \
 	&& make -j$(getconf _NPROCESSORS_ONLN)
 
 RUN \
@@ -233,10 +233,10 @@ RUN \
 	&& apk add --no-cache --virtual .gettext gettext \
 	\
 	&& scanelf --needed --nobanner /usr/sbin/nginx /usr/lib/nginx/modules/*.so /usr/bin/envsubst \
-			| awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
-			| sort -u \
-			| xargs -r apk info --installed \
-			| sort -u > /tmp/runDeps.txt
+	| awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
+	| sort -u \
+	| xargs -r apk info --installed \
+	| sort -u > /tmp/runDeps.txt
 
 FROM alpine:3.14
 ARG NGINX_VERSION

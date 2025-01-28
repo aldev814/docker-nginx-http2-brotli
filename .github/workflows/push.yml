@@ -22,14 +22,14 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5.6.1
         with:
           images: |
-            ${{ secrets.DOCKER_USERNAME }}/nginx-http2-brotli
-            ghcr.io/${{ github.actor }}/nginx-http2-brotli
+            ${{ secrets.DOCKER_USERNAME }}/nginx-docker
+            ghcr.io/${{ github.actor }}/nginx-docker
 
       - name: Build and push Docker Image
         uses: docker/build-push-action@v6.13.0
