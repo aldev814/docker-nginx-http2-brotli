@@ -84,9 +84,7 @@ RUN \
   echo "Downloading Openssl $OPENSSL_VERSION " \
   && cd /usr/src \
   && wget -O openssl-${OPENSSL_VERSION}.tar.gz ${OPENSSL_URL} \
-  && tar -xzvf openssl-${OPENSSL_VERSION}.tar.gz \
-  && cd /usr/src/openssl-${OPENSSL_VERSION} \
-  && curl ${OPENSSL_PATCH} | patch -p1
+  && tar -xzvf openssl-${OPENSSL_VERSION}.tar.gz 
 
 RUN \
   echo "Cloning nginx $NGINX_VERSION ..." \
