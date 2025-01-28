@@ -12,10 +12,10 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2.0.0
+      uses: docker/setup-buildx-action@v3.8.0
 
     - name: Build the Nginx Docker
-      uses: docker/build-push-action@v3.1.0
+      uses: docker/build-push-action@v6.13.0
       with:
         context: .
         load: true
