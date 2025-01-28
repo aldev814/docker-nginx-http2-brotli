@@ -20,17 +20,17 @@ jobs:
         context: .
         load: true
         # files: ./Dockerfile
-        tags: justf/nginx-http2-brotli
+        tags: aldev814/nginx-http2-brotli
         cache-to: type=gha,mode=max
 
     - name: Run nginx -V
       run: |
-        docker run -t justf/nginx-http2-brotli nginx -V | sed 's/\-\-/\n\t--/g' | tee
+        docker run -t aldev814/nginx-http2-brotli nginx -V | sed 's/\-\-/\n\t--/g' | tee
     
     # Test Docker Nginx
     - name:  Install and setup mkcert
       env: 
-        MKCERT_VERSION: v1.4.3
+        MKCERT_VERSION: v1.4.4
       run: |
         set -x
         sudo apt-get update && \
