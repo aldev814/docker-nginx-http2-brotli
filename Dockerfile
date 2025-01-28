@@ -1,4 +1,4 @@
-ARG NGINX_VERSION=1.25.1
+ARG NGINX_VERSION=1.26.2
 
 FROM alpine:3.14 AS base
 LABEL maintainer="NGINX Docker Maintainers <justf>"
@@ -9,7 +9,7 @@ ARG NGINX_PATCH="https://raw.githubusercontent.com/kn007/patch/master/nginx_dyna
 ARG NGINX_CRYPT_PATCH="https://raw.githubusercontent.com/kn007/patch/master/use_openssl_md5_sha1.patch"
 
 # openssl
-ARG OPENSSL_VERSION="1.1.1u"
+ARG OPENSSL_VERSION="3.4.0"
 ARG OPENSSL_URL="https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz"
 ARG OPENSSL_PATCH="https://raw.githubusercontent.com/kn007/patch/master/openssl-1.1.1.patch"
 
@@ -24,7 +24,7 @@ ARG JEMALLOC_URL="https://github.com/jemalloc/jemalloc/releases/download/${JEMAL
 ARG BROTLI_URL="https://github.com/google/ngx_brotli.git"
 
 # https://github.com/openresty/headers-more-nginx-module#installation
-ARG HEADERS_MORE_VERSION=0.34
+ARG HEADERS_MORE_VERSION=0.38
 ARG HEADERS_MORE_URL="https://github.com/openresty/headers-more-nginx-module/archive/refs/tags/v${HEADERS_MORE_VERSION}.tar.gz"
 
 # https://github.com/leev/ngx_http_geoip2_module/releases
@@ -33,7 +33,7 @@ ARG GEOIP2_VERSION=3.4
 ARG PCRE_VERSION="8.45"
 ARG PCRE_URL="https://downloads.sourceforge.net/project/pcre/pcre/${PCRE_VERSION}/pcre-${PCRE_VERSION}.tar.gz"
 
-ARG LIBATOMIC_VERSION="7.8.0"
+ARG LIBATOMIC_VERSION="7.8.2"
 ARG LIBATOMIC_URL="https://github.com/ivmai/libatomic_ops/releases/download/v${LIBATOMIC_VERSION}/libatomic_ops-${LIBATOMIC_VERSION}.tar.gz"
 
 ARG HTTP_FLV_URL="https://github.com/winshining/nginx-http-flv-module.git"
@@ -201,6 +201,7 @@ RUN \
 		--with-compat \
 		--with-file-aio \
 		--with-http_v2_module \
+		--with-http_v3_module \
 		--with-zlib=/usr/src/zlib \
 		--with-pcre=/usr/src/pcre-${PCRE_VERSION} \
 		--with-pcre-jit \
