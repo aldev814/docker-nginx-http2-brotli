@@ -21,6 +21,10 @@ jobs:
           tags: aldev814/nginx-docker
           cache-to: type=gha,mode=max
 
+      - name: Setup tmate session
+        if: ${{ failure() }}
+        uses: mxschmitt/action-tmate@v3
+
       - name: Run nginx -V
         run: |
           docker run -t aldev814/nginx-docker nginx -V | sed 's/\-\-/\n\t--/g' | tee

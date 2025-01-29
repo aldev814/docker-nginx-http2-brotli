@@ -1,6 +1,6 @@
 ARG NGINX_VERSION=1.27.2
 
-FROM alpine:3.14 AS base
+FROM alpine:latest AS base
 LABEL maintainer="NGINX Docker Maintainers <aldev814>"
 
 # https://nginx.org/en/download.html
@@ -214,6 +214,7 @@ RUN \
 	--add-module=/usr/src/ngx_http_geoip2_module \
 	--add-module=/usr/src/nginx-http-flv-module \
 	--add-module=/usr/src/ngx_http_substitutions_filter_module \
+	--with-openssl=/usr/src/boringssl \
 	--with-cc-opt="-I/usr/src/boringssl/include" \
 	--with-ld-opt="-L/usr/src/boringssl/build/ssl -L/usr/src/boringssl/build/crypto" \
 	&& make -j$(getconf _NPROCESSORS_ONLN)
@@ -242,7 +243,7 @@ RUN \
 	| xargs -r apk info --installed \
 	| sort -u > /tmp/runDeps.txt
 
-FROM alpine:3.14
+FROM alpine:latest
 ARG NGINX_VERSION
 ARG NGINX_COMMIT
 
