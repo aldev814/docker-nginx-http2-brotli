@@ -88,7 +88,11 @@ RUN \
 	&& cd boringssl \
 	&& mkdir build && cd build \
 	&& cmake .. \
-	&& make -j$(getconf _NPROCESSORS_ONLN)
+	&& make -j$(getconf _NPROCESSORS_ONLN) \
+ 	&& cd /usr/src/boringssl && mkdir -p .openssl/lib \
+	&& cd .openssl && ln -s ../include include \
+ 	&& cd .. && cp "build/crypto/libcrypto.a" ".openssl/lib" && cp "build/ssl/libssl.a" ".openssl/lib" \
+  	&& touch .openssl/include/openssl/ssl.h
 
 RUN \
 	echo "Cloning nginx $NGINX_VERSION ..." \
