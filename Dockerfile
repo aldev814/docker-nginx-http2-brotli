@@ -87,10 +87,7 @@ RUN \
 	&& cd boringssl-${BORINGSSL_VERSION} \
 	&& mkdir build && cd build \
 	&& cmake .. \
-	&& make -j$(getconf _NPROCESSORS_ONLN) && cd .. \
-	&& mkdir -p .openssl/lib && cd .openssl && ln -s ../include . \
-	&& cd .. \
-	&& cp build/crypto/libcrypto.a build/ssl/libssl.a .openssl/lib
+	&& make -j$(getconf _NPROCESSORS_ONLN)
 
 RUN \
 	echo "Cloning nginx $NGINX_VERSION ..." \
@@ -158,6 +155,8 @@ RUN \
 	&& ./configure \
 	&& make install -j$(nproc)
 
+ARG CC_OPT='-g -O2 -flto=auto -ffat-lto-objects -flto=auto -ffat-lto-objects -I/usr/src/boringssl-${BORINGSSL_VERSION}/include'
+ARG LD_OPT='-Wl,-Bsymbolic-functions -flto=auto -ffat-lto-objects -flto=auto -L/usr/src/boringssl-${BORINGSSL_VERSION}/build/ssl /usr/src/boringssl-${BORINGSSL_VERSION}/build/crypto'
 RUN \
 	echo "Building nginx ..." \
 	&& cd /usr/src/nginx-$NGINX_VERSION \
@@ -216,9 +215,8 @@ RUN \
 	--add-module=/usr/src/ngx_http_geoip2_module \
 	--add-module=/usr/src/nginx-http-flv-module \
 	--add-module=/usr/src/ngx_http_substitutions_filter_module \
-	# --with-openssl=/usr/src/openssl-${OPENSSL_VERSION} \
 	--with-openssl=/usr/src/boringssl-${BORINGSSL_VERSION} \
-	--with-openssl-opt="zlib enable-tls1_3 enable-weak-ssl-ciphers enable-ec_nistp_64_gcc_128  -ljemalloc -Wl,-flto" \
+	--with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT" \
 	&& make -j$(getconf _NPROCESSORS_ONLN)
 
 RUN \
