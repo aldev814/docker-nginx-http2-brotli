@@ -214,7 +214,6 @@ RUN \
 	--add-module=/usr/src/ngx_http_geoip2_module \
 	--add-module=/usr/src/nginx-http-flv-module \
 	--add-module=/usr/src/ngx_http_substitutions_filter_module \
-	--with-openssl=/usr/src/boringssl \
 	--with-cc-opt="-I/usr/src/boringssl/include" \
 	--with-ld-opt="-L/usr/src/boringssl/build/ssl -L/usr/src/boringssl/build/crypto" \
 	&& make -j$(getconf _NPROCESSORS_ONLN)
