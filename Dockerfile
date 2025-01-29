@@ -13,6 +13,10 @@ ARG OPENSSL_VERSION="3.4.0"
 ARG OPENSSL_URL="https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz"
 ARG OPENSSL_PATCH="https://raw.githubusercontent.com/EverybodyGetsHurt/OpenSSL-3.x.x-dev-OpenSSL-1.1.1x-chacha20-poly1305_draft/refs/heads/master/OpenSSL-3.4.0-dev_chacha20-poly1305_draft.patch"
 
+# BoringSSL
+ARG BORINGSSL_VERSION="0.20250114.0"
+ARG BORINGSSL_URL="https://github.com/google/boringssl/releases/download/$BORINGSSL_VERSION/boringssl-$BORINGSSL_VERSION.tar.gz"
+
 # zlib by cloudflare
 ARG ZLIB_URL="https://github.com/cloudflare/zlib.git"
 
@@ -80,11 +84,25 @@ RUN \
 	&& cd /usr/src/zlib \
 	&& make -f Makefile.in distclean
 
+# RUN \
+# 	echo "Downloading Openssl $OPENSSL_VERSION " \
+# 	&& cd /usr/src \
+# 	&& wget -O openssl-${OPENSSL_VERSION}.tar.gz ${OPENSSL_URL} \
+# 	&& tar -xzvf openssl-${OPENSSL_VERSION}.tar.gz
+
 RUN \
-	echo "Downloading Openssl $OPENSSL_VERSION " \
+	echo "Downloading BoringSSL $BORINGSSL_VERSION " \
 	&& cd /usr/src \
-	&& wget -O openssl-${OPENSSL_VERSION}.tar.gz ${OPENSSL_URL} \
-	&& tar -xzvf openssl-${OPENSSL_VERSION}.tar.gz
+	&& wget -O boringssl-${BORINGSSL_VERSION}.tar.gz ${OPENSSL_URL} \
+	&& tar -xzvf boringssl-${BORINGSSL_VERSION}.tar.gz \
+	&& cd boringssl-${BORINGSSL_VERSION} \
+	&& mkdir build && cd build \
+	&& cmake .. \
+	&& make -j$(getconf _NPROCESSORS_ONLN) && cd .. \
+	&& mkdir -p .openssl/lib && cd .openssl && ln -s ../include . \
+	&& cd .. \
+	&& cp build/crypto/libcrypto.a build/ssl/libssl.a .openssl/lib
+	# && touch .openssl/include/openssl/ssl.h
 
 RUN \
 	echo "Cloning nginx $NGINX_VERSION ..." \
@@ -210,7 +228,8 @@ RUN \
 	--add-module=/usr/src/ngx_http_geoip2_module \
 	--add-module=/usr/src/nginx-http-flv-module \
 	--add-module=/usr/src/ngx_http_substitutions_filter_module \
-	--with-openssl=/usr/src/openssl-${OPENSSL_VERSION} \
+	# --with-openssl=/usr/src/openssl-${OPENSSL_VERSION} \
+	--with-openssl=/usr/src/boringssl-${BORINGSSL_VERSION} \
 	--with-openssl-opt="zlib enable-tls1_3 enable-weak-ssl-ciphers enable-ec_nistp_64_gcc_128  -ljemalloc -Wl,-flto" \
 	&& make -j$(getconf _NPROCESSORS_ONLN)
 
