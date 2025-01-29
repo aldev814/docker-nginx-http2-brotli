@@ -84,7 +84,8 @@ RUN \
 	&& cd /usr/src \
 	&& wget -O boringssl-${BORINGSSL_VERSION}.tar.gz ${BORINGSSL_URL} \
 	&& tar -xzvf boringssl-${BORINGSSL_VERSION}.tar.gz \
-	&& cd boringssl-${BORINGSSL_VERSION} \
+	&& mv boringssl-${BORINGSSL_VERSION} boringssl \
+	&& cd boringssl \
 	&& mkdir build && cd build \
 	&& cmake .. \
 	&& make -j$(getconf _NPROCESSORS_ONLN)
@@ -213,9 +214,9 @@ RUN \
 	--add-module=/usr/src/ngx_http_geoip2_module \
 	--add-module=/usr/src/nginx-http-flv-module \
 	--add-module=/usr/src/ngx_http_substitutions_filter_module \
-	--with-openssl=/usr/src/boringssl-${BORINGSSL_VERSION} \
-	--with-cc-opt="-I/usr/src/boringssl-${BORINGSSL_VERSION}/include" \
-	--with-ld-opt="-L/usr/src/boringssl-${BORINGSSL_VERSION}/build/ssl /usr/src/boringssl-${BORINGSSL_VERSION}/build/crypto" \
+	--with-openssl=/usr/src/boringssl \
+	--with-cc-opt="-I/usr/src/boringssl/include" \
+	--with-ld-opt="-L/usr/src/boringssl/build/ssl -L/usr/src/boringssl/build/crypto" \
 	&& make -j$(getconf _NPROCESSORS_ONLN)
 
 RUN \
