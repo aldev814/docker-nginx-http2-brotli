@@ -155,8 +155,6 @@ RUN \
 	&& ./configure \
 	&& make install -j$(nproc)
 
-ARG CC_OPT='-g -O2 -flto=auto -ffat-lto-objects -flto=auto -ffat-lto-objects -I/usr/src/boringssl-${BORINGSSL_VERSION}/include'
-ARG LD_OPT='-Wl,-Bsymbolic-functions -flto=auto -ffat-lto-objects -flto=auto -L/usr/src/boringssl-${BORINGSSL_VERSION}/build/ssl /usr/src/boringssl-${BORINGSSL_VERSION}/build/crypto'
 RUN \
 	echo "Building nginx ..." \
 	&& cd /usr/src/nginx-$NGINX_VERSION \
@@ -216,7 +214,8 @@ RUN \
 	--add-module=/usr/src/nginx-http-flv-module \
 	--add-module=/usr/src/ngx_http_substitutions_filter_module \
 	--with-openssl=/usr/src/boringssl-${BORINGSSL_VERSION} \
-	--with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT" \
+	--with-cc-opt="-I/usr/src/boringssl-${BORINGSSL_VERSION}/include" \
+	--with-ld-opt="-L/usr/src/boringssl-${BORINGSSL_VERSION}/build/ssl /usr/src/boringssl-${BORINGSSL_VERSION}/build/crypto" \
 	&& make -j$(getconf _NPROCESSORS_ONLN)
 
 RUN \
