@@ -1,6 +1,6 @@
 ARG NGINX_VERSION=1.27.2
 
-FROM alpine:latest AS base
+FROM alpine:3.15 AS base
 LABEL maintainer="NGINX Docker Maintainers <aldev814>"
 
 # https://nginx.org/en/download.html
@@ -243,7 +243,7 @@ RUN \
 	| xargs -r apk info --installed \
 	| sort -u > /tmp/runDeps.txt
 
-FROM alpine:latest
+FROM alpine:3.15
 ARG NGINX_VERSION
 ARG NGINX_COMMIT
 
