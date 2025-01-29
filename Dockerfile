@@ -102,7 +102,6 @@ RUN \
 	&& mkdir -p .openssl/lib && cd .openssl && ln -s ../include . \
 	&& cd .. \
 	&& cp build/crypto/libcrypto.a build/ssl/libssl.a .openssl/lib
-	# && touch .openssl/include/openssl/ssl.h
 
 RUN \
 	echo "Cloning nginx $NGINX_VERSION ..." \
