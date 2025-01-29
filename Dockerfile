@@ -8,11 +8,6 @@ ARG NGINX_VERSION
 ARG NGINX_PATCH="https://raw.githubusercontent.com/kn007/patch/master/nginx_dynamic_tls_records.patch"
 ARG NGINX_CRYPT_PATCH="https://raw.githubusercontent.com/kn007/patch/master/use_openssl_md5_sha1.patch"
 
-# openssl
-ARG OPENSSL_VERSION="3.4.0"
-ARG OPENSSL_URL="https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz"
-ARG OPENSSL_PATCH="https://raw.githubusercontent.com/EverybodyGetsHurt/OpenSSL-3.x.x-dev-OpenSSL-1.1.1x-chacha20-poly1305_draft/refs/heads/master/OpenSSL-3.4.0-dev_chacha20-poly1305_draft.patch"
-
 # BoringSSL
 ARG BORINGSSL_VERSION="0.20250114.0"
 ARG BORINGSSL_URL="https://github.com/google/boringssl/releases/download/$BORINGSSL_VERSION/boringssl-$BORINGSSL_VERSION.tar.gz"
@@ -83,12 +78,6 @@ RUN \
 	&& git clone --depth 1 ${ZLIB_URL} \
 	&& cd /usr/src/zlib \
 	&& make -f Makefile.in distclean
-
-# RUN \
-# 	echo "Downloading Openssl $OPENSSL_VERSION " \
-# 	&& cd /usr/src \
-# 	&& wget -O openssl-${OPENSSL_VERSION}.tar.gz ${OPENSSL_URL} \
-# 	&& tar -xzvf openssl-${OPENSSL_VERSION}.tar.gz
 
 RUN \
 	echo "Downloading BoringSSL $BORINGSSL_VERSION " \
