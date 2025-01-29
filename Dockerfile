@@ -82,7 +82,7 @@ RUN \
 RUN \
 	echo "Downloading BoringSSL $BORINGSSL_VERSION " \
 	&& cd /usr/src \
-	&& wget -O boringssl-${BORINGSSL_VERSION}.tar.gz ${OPENSSL_URL} \
+	&& wget -O boringssl-${BORINGSSL_VERSION}.tar.gz ${BORINGSSL_URL} \
 	&& tar -xzvf boringssl-${BORINGSSL_VERSION}.tar.gz \
 	&& cd boringssl-${BORINGSSL_VERSION} \
 	&& mkdir build && cd build \
